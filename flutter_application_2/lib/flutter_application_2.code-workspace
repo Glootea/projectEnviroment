@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../server"
+		},
+		{
+			"path": "../../shared"
+		},
+		{
+			"path": "../../../projects_dart/cli"
+		}
+	],
+	"settings": {}
+}
