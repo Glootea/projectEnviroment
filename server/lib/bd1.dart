@@ -39,6 +39,7 @@ class Client extends Table {
   TextColumn get innEnterprise => text().references(Enterprise, #inn, onDelete: KeyAction.cascade)();
   @override
   Set<Column<Object>> get primaryKey => {login};
+
 }
 
 class Order extends Table {
@@ -79,6 +80,33 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  void insertClient() async{
+    await into(enterprise).insertOnConflictUpdate(EnterpriseCompanion.insert(inn: '123456789012', name: 'fdf', address: 'dffd', bic: '123456789'
+
+    ));
+    into(client).insertOnConflictUpdate(ClientCompanion.insert(
+      password: '11111111',
+      name: 'John',
+      login: 'client',
+      birthday: '1990-01-01',
+      email: 'johndoe@example.com',
+      phone: '+1234567890',
+      innEnterprise: '123456789012',
+    ));
+    into(client).insertOnConflictUpdate(ClientCompanion.insert(
+      password: '11111111',
+      name: 'Mary',
+      login: 'client2',
+      birthday: '1990-01-01',
+      email: 'johndoe@example.com',
+      phone: '+1234567890',
+      innEnterprise: '123456789012',
+    ));
+  }
+  Future<ClientData?> findClient(String login, String password) {
+   return (select (client)..where((tbl) => tbl.login.equals(login) & tbl.password.equals(password))).getSingleOrNull();
+
+  }
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(

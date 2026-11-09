@@ -16,7 +16,6 @@ void main() {
   final b = SaveLogin();
 }
 
-final TextEditingController _controller = TextEditingController();
 
 class SaveLogin {
    static String MyLogin = '';
@@ -44,6 +43,14 @@ class LabPage extends StatefulWidget{
   State<LabPage> createState() => _LabPageState(); // 1 ЗАЧЕМ ЭТО НУЖНО 2 Зачем перед переменной _
 }
 
+class ClientPage extends StatefulWidget{
+  ClientPage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State<ClientPage> createState() => _ClientPageState(); // 1 ЗАЧЕМ ЭТО НУЖНО 2 Зачем перед переменной _
+}
 
 class LoginPage extends StatefulWidget{
   LoginPage({Key? key, required this.title}) : super(key: key);
@@ -79,18 +86,66 @@ class _LoginPageState extends State<LoginPage> {
                 labelText: 'Введите пароль',
               ),
               obscureText: true,
+               onChanged: (value) {
+                setState(() {
+                  SaveLogin.password = value;
+                });
+              },
             ),
             TextButton(
               onPressed: () async {
+                try{
                 final response = await dio.post('http://localhost:8080/login', data:jsonEncode(LoginReguest(
                   login: SaveLogin.MyLogin,
                    password: SaveLogin.password).toJson()));
                    final loginResponse = LoginResponse.fromJson(response.data);
+                   
                    print('FIO: ${loginResponse.fio}, Photo URL: ${loginResponse.photoUrl}, Role: ${loginResponse.role}');
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LabPage(title: 'Рабочая зона лаборанта')),
+                  MaterialPageRoute(builder: (context) {
+                    if (loginResponse.role == 'lab') {
+                      return LabPage(title: 'Рабочая зона лаборанта');
+                    } else if (loginResponse.role == 'client') {
+                      // Navigate to the admin page
+                      return Scaffold(
+                        body: Center(
+                          child: Text('Welcome, ${loginResponse.fio}!'),
+                        ),
+                      );
+                    } else if (loginResponse.role == 'Admin') {
+                      // Navigate to the admin page
+                      return Scaffold(
+                        body: Center(
+                          child: Text('Welcome, ${loginResponse.fio}!'),
+                        ),
+                      );
+
+                    }
+                    else {
+                      // Handle other roles or show an error message
+                      return Scaffold(
+                        body: Center(
+                          child: Text('Access denied for role: ${loginResponse.role}'),
+                        ),
+                      );
+                    }
+                    return LabPage(title: 'Рабочая зона лаборанта');
+                  }),
+                
                 );
+                
+                }
+                 on DioException catch (e) {
+              
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Invalid login or password')),
+                    );
+                  print('Ошибка при выполнении запроса $e');
+                  }
+
+                
+                
                 // Действие при нажатии на кнопку
               },
               child: Text('Войти'),
@@ -105,8 +160,68 @@ class _LoginPageState extends State<LoginPage> {
 
 
 }
-
+class _ClientPageState extends State<ClientPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+          child: Column(
+              children: [
+                Text('Рабочая зона клиента'),
+                
+                
+              ] 
+          )
+      )
+    );
+  }
+}
 class _LabPageState extends State<LabPage> {
+  final TextEditingController _controller = TextEditingController();
+  dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  Future<void> Picking() async {
+  final file = await FilePicker.pickFile();
+
+  if (file == null) {
+    print('Пользователь отменил выбор файла');
+    return;
+  } else{
+
+  final Uint8List imageBytes = await file.readAsBytes();
+
+  print('Удалось получить доступ к файлу');
+  
+
+
+  await Decoding(imageBytes);
+  }
+}
+  Future<void> Decoding(Uint8List bytes) async {
+  try {
+    final image = img.decodeImage(bytes);
+    if (image == null) {
+      print('Не удалось прочитать изображение');
+      return;
+    }
+    print('Размер: ${image.width} x ${image.height}');
+    final rgba = image.convert(numChannels: 4);
+    final qrImage = YomuImage.rgba(
+      bytes: rgba.getBytes(order: img.ChannelOrder.rgba),
+      width: image.width,
+      height: image.height,
+    );
+    final result = Yomu.qrOnly.decode(qrImage);
+    print('QR-код: ${result.text}');
+    _controller.text = result.text;
+  } catch (e) {
+    print('Ошибка распознавания QR: $e');
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,43 +255,4 @@ class _LabPageState extends State<LabPage> {
   }
 }
 
-Future<void> Picking() async {
-  final file = await FilePicker.pickFile();
 
-  if (file == null) {
-    print('Пользователь отменил выбор файла');
-    return;
-  } else{
-
-  final Uint8List imageBytes = await file.readAsBytes();
-
-  print('Удалось получить доступ к файлу');
-  
-
-
-  await Decoding(imageBytes);
-  }
-}
-
-
-Future<void> Decoding(Uint8List bytes) async {
-  try {
-    final image = img.decodeImage(bytes);
-    if (image == null) {
-      print('Не удалось прочитать изображение');
-      return;
-    }
-    print('Размер: ${image.width} x ${image.height}');
-    final rgba = image.convert(numChannels: 4);
-    final qrImage = YomuImage.rgba(
-      bytes: rgba.getBytes(order: img.ChannelOrder.rgba),
-      width: image.width,
-      height: image.height,
-    );
-    final result = Yomu.qrOnly.decode(qrImage);
-    print('QR-код: ${result.text}');
-    _controller.text = result.text;
-  } catch (e) {
-    print('Ошибка распознавания QR: $e');
-  }
-}
