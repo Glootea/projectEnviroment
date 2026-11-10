@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) {
-                    if (loginResponse.role == 'lab') {
+                    if (loginResponse.role == 'laborant') {
                       return LabPage(title: 'Рабочая зона лаборанта');
                     } else if (loginResponse.role == 'client') {
                       // Navigate to the admin page

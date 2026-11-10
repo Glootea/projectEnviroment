@@ -10,7 +10,14 @@ class TodoItems extends Table {
   TextColumn get content => text().named('body')();
   DateTimeColumn get createdAt => dateTime().nullable()();
 }
+class Laborant extends Table {
+  TextColumn get fio => text()();
+  TextColumn get login => text()();
+  TextColumn get password => text()();
 
+  @override
+  Set<Column<Object>> get primaryKey => {login};
+}
 class Service extends Table {
   IntColumn get code => integer()();
   TextColumn get name => text()();
@@ -57,7 +64,7 @@ class ServiceProvided extends Table {
 }
 
 @DriftDatabase(
-  tables: [TodoItems, Service, Enterprise, Client, Order, ServiceProvided],
+  tables: [TodoItems, Service, Enterprise, Client, Order, ServiceProvided, Laborant],
 )
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
@@ -66,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 1110;
 
   static QueryExecutor _openConnection() {
     return PgDatabase(
@@ -79,7 +86,16 @@ class AppDatabase extends _$AppDatabase {
       settings: pg.ConnectionSettings(sslMode: pg.SslMode.disable),
     );
   }
-
+  Future<void> insertLaborant() async{
+   await into(laborant).insertOnConflictUpdate(LaborantCompanion.insert(
+     fio: 'FIO',
+     login: 'lab',
+     password: '1',
+   ));
+ }
+  Future<LaborantData?> findLaborant(String login, String password) {
+   return (select (laborant)..where((tbl) => tbl.login.equals(login) & tbl.password.equals(password))).getSingleOrNull();
+  }
   void insertClient() async{
     await into(enterprise).insertOnConflictUpdate(EnterpriseCompanion.insert(inn: '123456789012', name: 'fdf', address: 'dffd', bic: '123456789'
 

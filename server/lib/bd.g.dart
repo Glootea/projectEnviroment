@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'bd1.dart';
+part of 'bd.dart';
 
 // ignore_for_file: type=lint
 class $TodoItemsTable extends TodoItems
@@ -1997,6 +1997,268 @@ class ServiceProvidedCompanion extends UpdateCompanion<ServiceProvidedData> {
   }
 }
 
+class $LaborantTable extends Laborant
+    with TableInfo<$LaborantTable, LaborantData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LaborantTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _fioMeta = const VerificationMeta('fio');
+  @override
+  late final GeneratedColumn<String> fio = GeneratedColumn<String>(
+    'fio',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _loginMeta = const VerificationMeta('login');
+  @override
+  late final GeneratedColumn<String> login = GeneratedColumn<String>(
+    'login',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _passwordMeta = const VerificationMeta(
+    'password',
+  );
+  @override
+  late final GeneratedColumn<String> password = GeneratedColumn<String>(
+    'password',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [fio, login, password];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'laborant';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LaborantData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('fio')) {
+      context.handle(
+        _fioMeta,
+        fio.isAcceptableOrUnknown(data['fio']!, _fioMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fioMeta);
+    }
+    if (data.containsKey('login')) {
+      context.handle(
+        _loginMeta,
+        login.isAcceptableOrUnknown(data['login']!, _loginMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_loginMeta);
+    }
+    if (data.containsKey('password')) {
+      context.handle(
+        _passwordMeta,
+        password.isAcceptableOrUnknown(data['password']!, _passwordMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_passwordMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {login};
+  @override
+  LaborantData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LaborantData(
+      fio: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fio'],
+      )!,
+      login: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}login'],
+      )!,
+      password: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}password'],
+      )!,
+    );
+  }
+
+  @override
+  $LaborantTable createAlias(String alias) {
+    return $LaborantTable(attachedDatabase, alias);
+  }
+}
+
+class LaborantData extends DataClass implements Insertable<LaborantData> {
+  final String fio;
+  final String login;
+  final String password;
+  const LaborantData({
+    required this.fio,
+    required this.login,
+    required this.password,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['fio'] = Variable<String>(fio);
+    map['login'] = Variable<String>(login);
+    map['password'] = Variable<String>(password);
+    return map;
+  }
+
+  LaborantCompanion toCompanion(bool nullToAbsent) {
+    return LaborantCompanion(
+      fio: Value(fio),
+      login: Value(login),
+      password: Value(password),
+    );
+  }
+
+  factory LaborantData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LaborantData(
+      fio: serializer.fromJson<String>(json['fio']),
+      login: serializer.fromJson<String>(json['login']),
+      password: serializer.fromJson<String>(json['password']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'fio': serializer.toJson<String>(fio),
+      'login': serializer.toJson<String>(login),
+      'password': serializer.toJson<String>(password),
+    };
+  }
+
+  LaborantData copyWith({String? fio, String? login, String? password}) =>
+      LaborantData(
+        fio: fio ?? this.fio,
+        login: login ?? this.login,
+        password: password ?? this.password,
+      );
+  LaborantData copyWithCompanion(LaborantCompanion data) {
+    return LaborantData(
+      fio: data.fio.present ? data.fio.value : this.fio,
+      login: data.login.present ? data.login.value : this.login,
+      password: data.password.present ? data.password.value : this.password,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LaborantData(')
+          ..write('fio: $fio, ')
+          ..write('login: $login, ')
+          ..write('password: $password')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(fio, login, password);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LaborantData &&
+          other.fio == this.fio &&
+          other.login == this.login &&
+          other.password == this.password);
+}
+
+class LaborantCompanion extends UpdateCompanion<LaborantData> {
+  final Value<String> fio;
+  final Value<String> login;
+  final Value<String> password;
+  final Value<int> rowid;
+  const LaborantCompanion({
+    this.fio = const Value.absent(),
+    this.login = const Value.absent(),
+    this.password = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LaborantCompanion.insert({
+    required String fio,
+    required String login,
+    required String password,
+    this.rowid = const Value.absent(),
+  }) : fio = Value(fio),
+       login = Value(login),
+       password = Value(password);
+  static Insertable<LaborantData> custom({
+    Expression<String>? fio,
+    Expression<String>? login,
+    Expression<String>? password,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (fio != null) 'fio': fio,
+      if (login != null) 'login': login,
+      if (password != null) 'password': password,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LaborantCompanion copyWith({
+    Value<String>? fio,
+    Value<String>? login,
+    Value<String>? password,
+    Value<int>? rowid,
+  }) {
+    return LaborantCompanion(
+      fio: fio ?? this.fio,
+      login: login ?? this.login,
+      password: password ?? this.password,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (fio.present) {
+      map['fio'] = Variable<String>(fio.value);
+    }
+    if (login.present) {
+      map['login'] = Variable<String>(login.value);
+    }
+    if (password.present) {
+      map['password'] = Variable<String>(password.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LaborantCompanion(')
+          ..write('fio: $fio, ')
+          ..write('login: $login, ')
+          ..write('password: $password, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2008,6 +2270,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ServiceProvidedTable serviceProvided = $ServiceProvidedTable(
     this,
   );
+  late final $LaborantTable laborant = $LaborantTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2019,6 +2282,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     client,
     order,
     serviceProvided,
+    laborant,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3796,6 +4060,175 @@ typedef $$ServiceProvidedTableProcessedTableManager =
       ServiceProvidedData,
       PrefetchHooks Function({bool idOrder})
     >;
+typedef $$LaborantTableCreateCompanionBuilder = LaborantCompanion Function({
+  required String fio,
+  required String login,
+  required String password,
+  Value<int> rowid,
+});
+typedef $$LaborantTableUpdateCompanionBuilder = LaborantCompanion Function({
+  Value<String> fio,
+  Value<String> login,
+  Value<String> password,
+  Value<int> rowid,
+});
+
+class $$LaborantTableFilterComposer
+    extends Composer<_$AppDatabase, $LaborantTable> {
+  $$LaborantTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get fio => $composableBuilder(
+    column: $table.fio,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get login => $composableBuilder(
+    column: $table.login,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get password => $composableBuilder(
+    column: $table.password,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LaborantTableOrderingComposer
+    extends Composer<_$AppDatabase, $LaborantTable> {
+  $$LaborantTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get fio => $composableBuilder(
+    column: $table.fio,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get login => $composableBuilder(
+    column: $table.login,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get password => $composableBuilder(
+    column: $table.password,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LaborantTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LaborantTable> {
+  $$LaborantTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get fio =>
+      $composableBuilder(column: $table.fio, builder: (column) => column);
+
+  GeneratedColumn<String> get login =>
+      $composableBuilder(column: $table.login, builder: (column) => column);
+
+  GeneratedColumn<String> get password =>
+      $composableBuilder(column: $table.password, builder: (column) => column);
+}
+
+class $$LaborantTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LaborantTable,
+          LaborantData,
+          $$LaborantTableFilterComposer,
+          $$LaborantTableOrderingComposer,
+          $$LaborantTableAnnotationComposer,
+          $$LaborantTableCreateCompanionBuilder,
+          $$LaborantTableUpdateCompanionBuilder,
+          (
+            LaborantData,
+            BaseReferences<_$AppDatabase, $LaborantTable, LaborantData>,
+          ),
+          LaborantData,
+          PrefetchHooks Function()
+        > {
+  $$LaborantTableTableManager(_$AppDatabase db, $LaborantTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LaborantTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LaborantTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LaborantTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> fio = const Value.absent(),
+                Value<String> login = const Value.absent(),
+                Value<String> password = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LaborantCompanion(
+                fio: fio,
+                login: login,
+                password: password,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String fio,
+                required String login,
+                required String password,
+                Value<int> rowid = const Value.absent(),
+              }) => LaborantCompanion.insert(
+                fio: fio,
+                login: login,
+                password: password,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$LaborantTable, LaborantData>(table),
+                  BaseReferences<_$AppDatabase, $LaborantTable, LaborantData>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LaborantTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LaborantTable,
+      LaborantData,
+      $$LaborantTableFilterComposer,
+      $$LaborantTableOrderingComposer,
+      $$LaborantTableAnnotationComposer,
+      $$LaborantTableCreateCompanionBuilder,
+      $$LaborantTableUpdateCompanionBuilder,
+      (
+        LaborantData,
+        BaseReferences<_$AppDatabase, $LaborantTable, LaborantData>,
+      ),
+      LaborantData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3812,4 +4245,6 @@ class $AppDatabaseManager {
       $$OrderTableTableManager(_db, _db.order);
   $$ServiceProvidedTableTableManager get serviceProvided =>
       $$ServiceProvidedTableTableManager(_db, _db.serviceProvided);
+  $$LaborantTableTableManager get laborant =>
+      $$LaborantTableTableManager(_db, _db.laborant);
 }
