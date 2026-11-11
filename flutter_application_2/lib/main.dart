@@ -186,14 +186,22 @@ class _LabPageState extends State<LabPage> {
 
 
 
-@override
-  void initState() async {
-    final dio = Dio();
-    final response = await dio.post('http://localhost:8080/count', data:jsonEncode(CountRequest().toJson()));
-                   final countResponse = CountResponse.fromJson(response.data);
-                    _numbercase.text = countResponse.count.toString();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final dio = Dio();
+      final response = await dio.get(
+        // на сервере get для /count, тут тоже должен быть get
+        'http://localhost:8080/count',
+        data: jsonEncode(CountRequest().toJson()),
+      );
+      final countResponse = CountResponse.fromJson(response.data);
+      _numbercase.text = countResponse.count.toString();
+    });
     super.initState();
   }
+
   
 
 @override
