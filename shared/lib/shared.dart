@@ -21,3 +21,19 @@ class LoginResponse {
 
   LoginResponse({required this.fio, required this.photoUrl, required this.role});
 }
+
+@JsonSerializable()
+class CountRequest {
+  factory CountRequest.fromJson(Map<String, dynamic> json) => _$CountRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$CountRequestToJson(this);
+
+  CountRequest();  
+}
+@JsonSerializable()
+class CountResponse {
+  factory CountResponse.fromJson(Map<String, dynamic> json) => _$CountResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$CountResponseToJson(this);
+final int count;
+
+  CountResponse({required this.count});
+}

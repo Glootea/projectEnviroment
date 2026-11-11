@@ -27,3 +27,15 @@ Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
       'photoUrl': instance.photoUrl,
       'role': instance.role,
     };
+
+CountRequest _$CountRequestFromJson(Map<String, dynamic> json) =>
+    CountRequest();
+
+Map<String, dynamic> _$CountRequestToJson(CountRequest instance) =>
+    <String, dynamic>{};
+
+CountResponse _$CountResponseFromJson(Map<String, dynamic> json) =>
+    CountResponse(count: (json['count'] as num).toInt());
+
+Map<String, dynamic> _$CountResponseToJson(CountResponse instance) =>
+    <String, dynamic>{'count': instance.count};

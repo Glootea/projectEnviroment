@@ -7,7 +7,8 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:math';
 import 'package:yomu/yomu.dart';
 import 'package:image/image.dart' as img;
-
+import 'package:flutter/services.dart';
+import 'package:barcode_widget/barcode_widget.dart';
 
 void main() {
   runApp(MyApp());
@@ -177,12 +178,31 @@ class _ClientPageState extends State<ClientPage> {
     );
   }
 }
+
 class _LabPageState extends State<LabPage> {
+
   final TextEditingController _controller = TextEditingController();
+  final TextEditingController _numbercase = TextEditingController();
+
+
+
+@override
+  void initState() async {
+    final dio = Dio();
+    final response = await dio.post('http://localhost:8080/count', data:jsonEncode(CountRequest().toJson()));
+                   final countResponse = CountResponse.fromJson(response.data);
+                    _numbercase.text = countResponse.count.toString();
+    super.initState();
+  }
+  
+
+@override
   dispose() {
     _controller.dispose();
+    _numbercase.dispose();
     super.dispose();
   }
+
   Future<void> Picking() async {
   final file = await FilePicker.pickFile();
 
@@ -200,6 +220,7 @@ class _LabPageState extends State<LabPage> {
   await Decoding(imageBytes);
   }
 }
+  
   Future<void> Decoding(Uint8List bytes) async {
   try {
     final image = img.decodeImage(bytes);
@@ -223,6 +244,7 @@ class _LabPageState extends State<LabPage> {
 }
 
   @override
+  
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
@@ -244,15 +266,15 @@ class _LabPageState extends State<LabPage> {
                   ),
                 ),
                 TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Введите номер кейса',
+                  
+                  controller: _numbercase,
+                  
                   ),
-                )
-              ] 
+
+                  ] 
+  
           )
       )
     );
-  }
+  }  
 }
-
-

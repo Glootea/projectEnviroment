@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:server/bd.dart';
 import 'package:shared/shared.dart';
 import 'package:shelf/shelf.dart';
@@ -13,6 +15,7 @@ void main() async {
   final database = AppDatabase();
   database.insertClient(); // Initialize your database here
   database.insertLaborant();
+  
   var router = Router();
   router.post('/login', (Request request) async {
     var body = await request.readAsString();
@@ -29,6 +32,15 @@ void main() async {
     }
     return Response.ok(jsonEncode(LoginResponse(fio: client.name, photoUrl: 'https://example.com/photo.jpg', role: "client").toJson()),
         headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'});
+  });
+  router.get('/count', (Request request) async {
+    var body = await request.readAsString();
+    CountRequest countRequest = CountRequest.fromJson(jsonDecode(body));
+    final otvet = await database.countOrder();
+    print("$otvet");
+    return Response.ok(jsonEncode(CountResponse(count: otvet).toJson()),
+    headers: { 'Content-Type': 'application/json'});
+   
   });
 final app = const Pipeline()
   .addMiddleware(logRequests())

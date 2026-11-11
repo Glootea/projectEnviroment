@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_postgres/drift_postgres.dart';
 import 'package:postgres/postgres.dart' as pg;
+import 'package:shared/shared.dart';
 
 part 'bd.g.dart';
 
@@ -19,7 +20,7 @@ class Laborant extends Table {
   Set<Column<Object>> get primaryKey => {login};
 }
 class Service extends Table {
-  IntColumn get code => integer()();
+  TextColumn get code => text()();
   TextColumn get name => text()();
   IntColumn get cost => integer()();
   IntColumn get amDeviation => integer()();
@@ -50,21 +51,27 @@ class Client extends Table {
 }
 
 class Order extends Table {
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get number => integer().autoIncrement()();
+  TextColumn get code => text()();
   TextColumn get status => text()();
   TextColumn get enddate => text()();
   TextColumn get startdate => text()();
   TextColumn get loginClient => text().references(Client, #login,onDelete: KeyAction.cascade)();
+  TextColumn get loginLaborant => text().references(Laborant, #login,onDelete: KeyAction.cascade)();
 }
 
+class EmployeeService extends Table {
+  TextColumn get employeeLogin => text().references(Laborant, #login,onDelete: KeyAction.cascade)();
+  TextColumn get code => text().references(Service, #code,onDelete: KeyAction.cascade)();
+}
 class ServiceProvided extends Table {
   IntColumn get id => integer().autoIncrement()();
   Column<PgDate> get date => customType(PgTypes.date)();
-  IntColumn get idOrder => integer().references(Order, #id,onDelete: KeyAction.cascade)();
+  IntColumn get idOrder => integer().references(Order, #number,onDelete: KeyAction.cascade)();
 }
 
 @DriftDatabase(
-  tables: [TodoItems, Service, Enterprise, Client, Order, ServiceProvided, Laborant],
+  tables: [TodoItems, Service, Enterprise, Client, Order, ServiceProvided, Laborant, EmployeeService],
 )
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
@@ -73,7 +80,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1110;
+  int get schemaVersion => 1743492;
 
   static QueryExecutor _openConnection() {
     return PgDatabase(
@@ -122,6 +129,10 @@ class AppDatabase extends _$AppDatabase {
   Future<ClientData?> findClient(String login, String password) {
    return (select (client)..where((tbl) => tbl.login.equals(login) & tbl.password.equals(password))).getSingleOrNull();
 
+  }
+  Future<int> countOrder() async {
+    final otvet = await (select (order).get());
+    return otvet.length;
   }
   @override
   MigrationStrategy get migration {
