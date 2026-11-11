@@ -178,7 +178,80 @@ class _ClientPageState extends State<ClientPage> {
     );
   }
 }
+void pageAddClient(BuildContext context) {
+  late OverlayEntry entry;
 
+  entry = OverlayEntry(
+    builder: (context) => Positioned(
+      top: 100,
+      left: 1000,
+      child: Material(
+        color: Colors.transparent,
+        child: AlertDialog(
+        title: const Text('Добавить клиента'),
+        content: SizedBox(
+          width: 200,
+          height: 200,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                TextField(
+                  decoration: InputDecoration(labelText: 'ФИО'),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Дата рождения',
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Серия и номер паспорта',
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Номер телефона',
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  decoration: InputDecoration(labelText: 'Email'),
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'название предприятия(для ЮЛ)',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () { entry.remove();
+                           entry.dispose();
+            },
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              entry.remove();
+              entry.dispose();
+            },
+            child: const Text('Добавить'),
+          ),
+        ],
+        ),
+      ),
+    ),
+  );
+
+  Overlay.of(context).insert(entry);
+}
 class _LabPageState extends State<LabPage> {
 
   final TextEditingController _controller = TextEditingController();
@@ -197,7 +270,8 @@ class _LabPageState extends State<LabPage> {
         data: jsonEncode(CountRequest().toJson()),
       );
       final countResponse = CountResponse.fromJson(response.data);
-      _numbercase.text = countResponse.count.toString();
+      _numbercase.text = (countResponse.count + 1).toString();
+      //_numbercase.text = countResponse.count.toString();
     });
     super.initState();
   }
@@ -251,8 +325,9 @@ class _LabPageState extends State<LabPage> {
   }
 }
 
+bool dialogOpened = false;
+
   @override
-  
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
@@ -274,10 +349,21 @@ class _LabPageState extends State<LabPage> {
                   ),
                 ),
                 TextField(
-                  
                   controller: _numbercase,
-                  
                   ),
+                  Text('Об клиенте'),
+                  TextField( 
+                    decoration: InputDecoration(
+                      labelText: 'Фамилия Имя Отчество',
+                    ),
+                    onChanged: (value) {
+                    if (value.isNotEmpty && !dialogOpened) {
+                    dialogOpened = true;
+                    pageAddClient(context);
+                     }},
+                    ),
+                  
+                  
 
                   ] 
   
