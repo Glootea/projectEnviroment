@@ -178,7 +178,7 @@ packages:
     source: hosted
     version: "3.1.14"
   drift:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: drift
       sha256: "3eafa443c385724806a8648129583b4b140b7472f3feb6d1f321bdcf0fc853d4"
@@ -194,7 +194,7 @@ packages:
     source: hosted
     version: "2.35.3"
   drift_postgres:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: drift_postgres
       sha256: "8c1e123c72aeb3982af53681d4c9327d2a54a980f3bc8658cd891429b0dd3b09"
@@ -386,7 +386,7 @@ packages:
     source: hosted
     version: "1.5.3"
   postgres:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: postgres
       sha256: "45a7ea2d064526500a44b1a62680e21406d5b3f3f3b1c21feb8b3053c2bad95e"

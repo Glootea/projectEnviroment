@@ -12,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:yomu/yomu.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
+import 'package:shared/bd.dart';
 
 void main() {
   runApp(MyApp());
@@ -171,68 +172,93 @@ class _ClientPageState extends State<ClientPage> {
 }
 
 // Для этого есть Dialog, его можно показать через showDialog
-void pageAddClient(BuildContext context) {
-  late OverlayEntry entry;
+Future<void> pageAddClient(BuildContext context) async {
+  final result = await showDialog(
+    context: context,
+    builder: (context) => const ClientDialog(),
+  );
+  if (result == null) return;
+  if (result is ClientData) {
+    // отправить запрос о создании клиента на сервер
+  }
+}
 
-  entry = OverlayEntry(
-    builder: (context) => Positioned(
-      top: 100,
-      left: 1000,
-      child: Material(
-        color: Colors.transparent,
-        child: AlertDialog(
-          title: const Text('Добавить клиента'),
-          content: SizedBox(
-            width: 200,
-            height: 200,
-            // Column + SingleChildScrollView -> ListView
-            child: ListView(
-              children: const [
-                TextField(decoration: InputDecoration(labelText: 'ФИО')),
-                SizedBox(height: 8),
-                TextField(
-                  decoration: InputDecoration(labelText: 'Дата рождения'),
-                ),
-                SizedBox(height: 8),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Серия и номер паспорта',
-                  ),
-                ),
-                SizedBox(height: 8),
-                TextField(
-                  decoration: InputDecoration(labelText: 'Номер телефона'),
-                ),
-                SizedBox(height: 8),
-                TextField(decoration: InputDecoration(labelText: 'Email')),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'название предприятия(для ЮЛ)',
-                  ),
-                ),
-              ],
+class ClientDialog extends StatefulWidget {
+  const new({super.key});
+
+  @override
+  State<ClientDialog> createState() => _ClientDialogState();
+}
+
+class _ClientDialogState extends State<ClientDialog> {
+  var client = ClientData(
+    password: '',
+    name: '',
+    login: '',
+    birthday: '',
+    email: '',
+    phone: '',
+    innEnterprise: '',
+  );
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Добавить клиента'),
+      content: SizedBox(
+        width: 400,
+        height: 600,
+        // Column + SingleChildScrollView -> ListView
+        child: ListView(
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: 'ФИО'),
+              onChanged: (value) => client = client.copyWith(name: value),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                entry.remove();
-                entry.dispose();
-              },
-              child: const Text('Отмена'),
+            SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(labelText: 'Дата рождения'),
+              onChanged: (value) => client = client.copyWith(birthday: value),
             ),
-            ElevatedButton(
-              onPressed: () {
-                entry.remove();
-                entry.dispose();
-              },
-              child: const Text('Добавить'),
+            SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(labelText: 'Серия и номер паспорта'),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(labelText: 'Номер телефона'),
+              onChanged: (value) => client = client.copyWith(phone: value),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(labelText: 'Email'),
+              onChanged: (value) => client = client.copyWith(email: value),
+            ),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'название предприятия(для ЮЛ)',
+              ),
+              onChanged: (value) =>
+                  client = client.copyWith(innEnterprise: value),
             ),
           ],
         ),
       ),
-    ),
-  );
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context, null);
+          },
+          child: const Text('Отмена'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, client);
+          },
+          child: const Text('Добавить'),
+        ),
+      ],
+    );
+  }
 }
 
 class _LabPageState extends State<LabPage> {
@@ -269,11 +295,11 @@ class _LabPageState extends State<LabPage> {
 
       log('Удалось получить доступ к файлу');
 
-      await Decoding(imageBytes);
+      await decoding(imageBytes);
     }
   }
 
-  Future<void> Decoding(Uint8List bytes) async {
+  Future<void> decoding(Uint8List bytes) async {
     try {
       final image = img.decodeImage(bytes);
       if (image == null) {
