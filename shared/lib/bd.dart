@@ -34,12 +34,15 @@ class Service extends Table {
 
 class Enterprise extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get inn => text().withLength(min: 10, max: 12).nullable()();
+  TextColumn get inn => text().unique().withLength(min: 10, max: 12).nullable()();
   TextColumn get name => text()();
   TextColumn get address => text().nullable()();
   TextColumn get bic => text().withLength(min: 9, max: 9).nullable()();
   @override
   Set<Column<Object>> get primaryKey => {id};
+   List<Set<Column<Object>>> get uniqueKeys => [
+    {inn},
+  ];
 }
 
 class Client extends Table {
@@ -100,7 +103,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1742;
+  int get schemaVersion => 17898742;
 
   static QueryExecutor _openConnection() {
     return PgDatabase(
