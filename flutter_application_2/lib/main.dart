@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared/shared.dart';
-import 'package:similarity/similarity.dart';
+
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -12,26 +12,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yomu/yomu.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
-import 'package:shared/bd.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final prefs = SharedPreferencesAsync();
-final login = await prefs.getString('login');
-final role = await prefs.getString('role');
+  final login = await prefs.getString('login');
+  final role = await prefs.getString('role');
 
-Widget startPage = LoginPage(title: 'Пункт приёма опасных отходов');
+  Widget startPage = LoginPage(title: 'Пункт приёма опасных отходов');
 
-  if (login != null && login.isNotEmpty){
-   if (role == 'laborant') {
+  if (login != null && login.isNotEmpty) {
+    if (role == 'laborant') {
       startPage = LabPage(title: 'Рабочая зона лаборанта');
     } else if (role == 'client') {
       startPage = ClientPage(title: 'зона клиента');
-    }}
+    }
+  }
   runApp(MyApp(startPage: startPage));
-  
-}  
+}
 
 class SaveLogin {
   static String myLogin = '';
@@ -40,7 +39,7 @@ class SaveLogin {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key, required this.startPage});
-  
+
   @override
   final Widget startPage;
   Widget build(BuildContext context) {
@@ -54,7 +53,6 @@ class MyApp extends StatelessWidget {
 class AccountStorage {
   final SharedPreferencesAsync prefs = SharedPreferencesAsync();
 }
-
 
 class LabPage extends StatefulWidget {
   const LabPage({super.key, required this.title});
@@ -72,7 +70,7 @@ class BookerPage extends StatefulWidget {
 
   @override
   State<BookerPage> createState() => _BookerPageState();
- }
+}
 
 class ClientPage extends StatefulWidget {
   const ClientPage({super.key, required this.title});
@@ -96,9 +94,10 @@ class _LoginPageState extends State<LoginPage> {
   final dio = Dio();
   final prefs = SharedPreferencesAsync();
   Future<void> saveAccount(String login, String role) async {
-  await prefs.setString('login', login);
-  await prefs.setString('role', role);
+    await prefs.setString('login', login);
+    await prefs.setString('role', role);
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,7 +138,9 @@ class _LoginPageState extends State<LoginPage> {
                   await saveAccount(SaveLogin.myLogin, loginResponse.role);
 
                   log(
-                    'FIO: ${loginResponse.fio}, Photo URL: ${loginResponse.photoUrl}, Role: ${loginResponse.role}',
+                    'FIO: ${loginResponse.fio}, '
+                    'Photo URL: ${loginResponse.photoUrl}, '
+                    'Role: ${loginResponse.role}',
                   );
                   if (context.mounted) {
                     Navigator.push(
@@ -147,7 +148,6 @@ class _LoginPageState extends State<LoginPage> {
                       MaterialPageRoute(
                         builder: (context) {
                           if (loginResponse.role == 'laborant') {
-                           
                             return LabPage(title: 'Рабочая зона лаборанта');
                           } else if (loginResponse.role == 'client') {
                             return Scaffold(
@@ -156,10 +156,14 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             );
                           } else if (loginResponse.role == 'Admin') {
-                            Future<void> saveAccount(String login, String role) async {
-                             await prefs.setString('login', login);
-                             await prefs.setString('role', role);
+                            Future<void> saveAccount(
+                              String login,
+                              String role,
+                            ) async {
+                              await prefs.setString('login', login);
+                              await prefs.setString('role', role);
                             }
+
                             return Scaffold(
                               body: Center(
                                 child: Text('Welcome, ${loginResponse.fio}!'),
@@ -217,19 +221,16 @@ Future<void> pageAddClient(BuildContext context) async {
   );
   if (result == null) return;
   if (result is OurClient) {
-  try {
-     final dio = Dio();
-                  final response = await dio.post(
-                    'http://localhost:8080/client',
-                    data: jsonEncode(
-                      CreateUserRequest(
-                         result
-                      ).toJson(),
-                    ),
-                  );
-                  final createUserResponse = CreateUserResponse.fromJson(response.data);
-  } catch (e){}
-}
+    try {
+      final dio = Dio();
+      await dio.post(
+        'http://localhost:8080/client',
+        data: jsonEncode(CreateUserRequest(result).toJson()),
+      );
+    } catch (e) {
+      log('Error adding client: $e');
+    }
+  }
 }
 
 class ClientDialog extends StatefulWidget {
@@ -238,6 +239,7 @@ class ClientDialog extends StatefulWidget {
   @override
   State<ClientDialog> createState() => _ClientDialogState();
 }
+
 class ChoiceClientDialog extends StatefulWidget {
   const new({super.key, required this.names});
 
@@ -246,14 +248,16 @@ class ChoiceClientDialog extends StatefulWidget {
   @override
   State<ChoiceClientDialog> createState() => _ChoiceClientDialogState();
 }
-class ChoiceServiceDialog extends StatefulWidget {
- const new({super.key, required this.names, required this.selected});
 
-final List<String> names;
-final List<String> selected;
+class ChoiceServiceDialog extends StatefulWidget {
+  const new({super.key, required this.names, required this.selected});
+
+  final List<String> names;
+  final List<String> selected;
   @override
   State<ChoiceServiceDialog> createState() => _ChoiceServiceDialogState();
 }
+
 class _ClientDialogState extends State<ClientDialog> {
   var client = OurClient(
     password: '',
@@ -276,32 +280,29 @@ class _ClientDialogState extends State<ClientDialog> {
           children: [
             TextField(
               decoration: InputDecoration(labelText: 'ФИО'),
-              onChanged: (value) => client.name= value,
+              onChanged: (value) => client.name = value,
             ),
             SizedBox(height: 8),
             TextField(
               decoration: InputDecoration(labelText: 'Дата рождения'),
-              onChanged: (value) => client.birthday= value,
+              onChanged: (value) => client.birthday = value,
             ),
             SizedBox(height: 8),
             TextField(
               decoration: InputDecoration(labelText: 'Серия и номер паспорта'),
             ),
             SizedBox(height: 8),
-            TextField(
-              decoration: InputDecoration(labelText: 'Номер телефона'),
-            ),
+            TextField(decoration: InputDecoration(labelText: 'Номер телефона')),
             SizedBox(height: 8),
             TextField(
               decoration: InputDecoration(labelText: 'Email'),
-              onChanged: (value) => client.email= value,
+              onChanged: (value) => client.email = value,
             ),
             TextField(
               decoration: InputDecoration(
                 labelText: 'название предприятия(для ЮЛ)',
               ),
-              onChanged: (value) =>
-                  client.nameEnterprise = value,
+              onChanged: (value) => client.nameEnterprise = value,
             ),
           ],
         ),
@@ -323,6 +324,7 @@ class _ClientDialogState extends State<ClientDialog> {
     );
   }
 }
+
 Future<String?> clientChoice(BuildContext context) async {
   try {
     final response = await Dio().get('http://localhost:8080/client/names');
@@ -335,14 +337,16 @@ Future<String?> clientChoice(BuildContext context) async {
       builder: (context) => ChoiceClientDialog(names: result.names),
     );
 
-        if (selectedName != null) {
+    if (selectedName != null) {
       log('Выбран клиент: $selectedName');
     }
     return selectedName;
   } catch (e) {
     log('Ошибка выбора клиента: $e');
     return null;
-  }}
+  }
+}
+
 Future<List<String>?> serviceChoice(
   BuildContext context,
   List<String> selectedServices,
@@ -355,17 +359,16 @@ Future<List<String>?> serviceChoice(
 
     return await showDialog<List<String>>(
       context: context,
-      builder: (context) => ChoiceServiceDialog(
-        names: result.names,
-        selected: selectedServices,
-      ),
+      builder: (context) =>
+          ChoiceServiceDialog(names: result.names, selected: selectedServices),
     );
   } catch (e) {
     log('Ошибка выбора услуг: $e');
     return null;
   }
 }
-  class _ChoiceClientDialogState extends State<ChoiceClientDialog> {
+
+class _ChoiceClientDialogState extends State<ChoiceClientDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
@@ -379,6 +382,7 @@ Future<List<String>?> serviceChoice(
     );
   }
 }
+
 class _ChoiceServiceDialogState extends State<ChoiceServiceDialog> {
   late final Set<String> _checked = widget.selected.toSet();
 
@@ -421,17 +425,16 @@ class _ChoiceServiceDialogState extends State<ChoiceServiceDialog> {
     );
   }
 }
+
 class _LabPageState extends State<LabPage> {
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _numbercase = TextEditingController();
 
-
-   @override
+  @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final dio = Dio();
       final response = await dio.get(
-        // на сервере get для /count, тут тоже должен быть get
         'http://localhost:8080/count',
         data: jsonEncode(CountRequest().toJson()),
       );
@@ -447,8 +450,9 @@ class _LabPageState extends State<LabPage> {
     _numbercase.dispose();
     super.dispose();
   }
-String? selectedName;
-List<String> selectedServices = [];
+
+  String? selectedName;
+  List<String> selectedServices = [];
   Future<void> picking() async {
     final file = await FilePicker.pickFile();
 
@@ -486,7 +490,6 @@ List<String> selectedServices = [];
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -494,18 +497,22 @@ List<String> selectedServices = [];
       body: Center(
         child: Column(
           children: [
-            TextButton(onPressed: () async {
-              final prefs = SharedPreferencesAsync();
-              await prefs.remove('login');
-              await prefs.remove('role');
-              
-              Navigator.push(
-              context,
-               MaterialPageRoute<void>(
-               builder: (context) => const LoginPage(title: "РАБОЧАЯ ЗОНА РЕГИСТАРЦИИ", ))
-            );
-            },
-             child: Text('Выйти')),
+            TextButton(
+              onPressed: () async {
+                final prefs = SharedPreferencesAsync();
+                await prefs.remove('login');
+                await prefs.remove('role');
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) =>
+                        const LoginPage(title: "РАБОЧАЯ ЗОНА РЕГИСТАРЦИИ"),
+                  ),
+                );
+              },
+              child: Text('Выйти'),
+            ),
             Text('Пункт приёма опасных отходов'),
             Text('Рабочая зона лаборанта'),
             TextButton(
@@ -523,39 +530,41 @@ List<String> selectedServices = [];
             Row(
               children: [
                 ElevatedButton(
-                onPressed: () async {
-                final name = await clientChoice(context);
-                 if (!mounted || name == null) return;
-                 setState(() {
-                 selectedName = name;
-                 });
-                 },
-                child: const Text('выбор клиента'),
+                  onPressed: () async {
+                    final name = await clientChoice(context);
+                    if (!mounted || name == null) return;
+                    setState(() {
+                      selectedName = name;
+                    });
+                  },
+                  child: const Text('выбор клиента'),
                 ),
-                ElevatedButton(onPressed: () {
-                  pageAddClient(context);
-                },
-                 child: Text('добавление нового клиента')),
+                ElevatedButton(
+                  onPressed: () {
+                    pageAddClient(context);
+                  },
+                  child: Text('добавление нового клиента'),
+                ),
               ],
             ),
             Text(selectedName ?? 'Клиент не выбран'),
             Text('УСЛУГИ'),
             ElevatedButton(
-  onPressed: () async {
-    final services = await serviceChoice(context, selectedServices);
-    if (!mounted || services == null) return;
+              onPressed: () async {
+                final services = await serviceChoice(context, selectedServices);
+                if (!mounted || services == null) return;
 
-    setState(() {
-      selectedServices = services;
-    });
-  },
-  child: const Text('Выбор услуг'),
-),
-Text(
-  selectedServices.isEmpty
-      ? 'Услуги не выбраны'
-      : selectedServices.join(', '),
-),          
+                setState(() {
+                  selectedServices = services;
+                });
+              },
+              child: const Text('Выбор услуг'),
+            ),
+            Text(
+              selectedServices.isEmpty
+                  ? 'Услуги не выбраны'
+                  : selectedServices.join(', '),
+            ),
             //ElevatedButton(onPressed: () {}, child: child)
           ],
         ),
@@ -563,9 +572,10 @@ Text(
     );
   }
 }
+
 class _BookerPageState extends State<BookerPage> {
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold();
-}
+  }
 }

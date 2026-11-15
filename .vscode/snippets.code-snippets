@@ -1,0 +1,50 @@
+{
+	"Request-response": {
+		"prefix": [ "rr" ],
+		"body": [ "@JsonSerializable()",
+			"class const $0Request() {",
+			"factory $0Request.fromJson(Map<String, dynamic> json) =>",
+			"_$$0RequestFromJson(json);",
+			"Map<String, dynamic> toJson() => _$$0RequestToJson(this);",
+			"}",
+			"",
+			"@JsonSerializable()",
+			"class const $0Response() {",
+			"factory $0Response.fromJson(Map<String, dynamic> json) =>",
+			"_$$0ResponseFromJson(json);",
+			"Map<String, dynamic> toJson() => _$$0ResponseToJson(this);",
+			"}" ],
+		"description": "Request-response for client-server exchange"
+	},
+	"Backend-handler": {
+		"prefix": "bh",
+		"body": [
+			"router.$method('/$path', (Request request) async {",
+			"final body = await request.readAsString();",
+			"final parsedRequest = ${Name}Request.fromJson(jsonDecode(body));",
+			"final data = await database.$databaseMethod();",
+			" return Response.ok(",
+			"jsonEncode(",
+			"${Name}Response().toJson(),",
+			"),",
+			"headers: {'Content-Type': 'application/json' },",
+			");",
+			"});"
+		]
+	},
+	"Client-request": {
+		"prefix": "cr",
+		"body": [
+			"try {",
+			"final response = await dio.$method(",
+			"'$address',",
+			"data: jsonEncode(${Name}Request().toJson()),",
+			");",
+			"final response = ${Name}Response.fromJson(response.data);",
+			"} catch (e) {",
+			"log('Error for ${Name}: \\$e');",
+			"}"
+
+		]
+	}
+}

@@ -121,18 +121,15 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<void> insertLaborant() async {
-    await into(laborant).insertOnConflictUpdate(
-      LaborantCompanion.insert(fio: 'FIO', login: 'lab', password: '1'),
-    );
-  }
+  Future<void> insertLaborant() => into(laborant).insertOnConflictUpdate(
+    LaborantCompanion.insert(fio: 'FIO', login: 'lab', password: '1'),
+  );
 
-  Future<LaborantData?> findLaborant(String login, String password) {
-    return (select(laborant)..where(
-          (tbl) => tbl.login.equals(login) & tbl.password.equals(password),
-        ))
-        .getSingleOrNull();
-  }
+  Future<LaborantData?> findLaborant(String login, String password) =>
+      (select(laborant)..where(
+            (tbl) => tbl.login.equals(login) & tbl.password.equals(password),
+          ))
+          .getSingleOrNull();
 
   void insertData() async {
     await into(enterprise).insert(
@@ -200,12 +197,11 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<ClientData?> findClient(String login, String password) {
-    return (select(client)..where(
-          (tbl) => tbl.login.equals(login) & tbl.password.equals(password),
-        ))
-        .getSingleOrNull();
-  }
+  Future<ClientData?> findClient(String login, String password) =>
+      (select(client)..where(
+            (tbl) => tbl.login.equals(login) & tbl.password.equals(password),
+          ))
+          .getSingleOrNull();
 
   Future<int> countOrder() async {
     final otvet = await (select(order).get());

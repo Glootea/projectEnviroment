@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:shared/bd.dart';
 part 'shared.g.dart';
 
 @JsonSerializable()
@@ -66,23 +65,15 @@ class const SeekFioResponse({required final List<String> names}) {
 }
 
 @JsonSerializable()
-class OurClient {
-  String password;
-  String name;
-  String login;
-  String birthday;
-  String email;
-  String phone;
-  String nameEnterprise;
-  OurClient({
-    required this.password,
-    required this.name,
-    required this.login,
-    required this.birthday,
-    required this.email,
-    required this.phone,
-    required this.nameEnterprise,
-  });
+class OurClient({
+  required var String password,
+  required var String name,
+  required var String login,
+  required var String birthday,
+  required var String email,
+  required var String phone,
+  required var String nameEnterprise,
+}) {
   factory OurClient.fromJson(Map<String, dynamic> json) =>
       _$OurClientFromJson(json);
   Map<String, dynamic> toJson() => _$OurClientToJson(this);

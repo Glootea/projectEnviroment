@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:shared/bd.dart';
+import 'package:server/bd.dart';
 import 'package:shared/shared.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -14,67 +14,12 @@ void main() async {
     database.insertData(); // Initialize your database here
     database.insertLaborant();
 
-    var router = Router();
-    router.post('/login', (Request request) async {
-      var body = await request.readAsString();
-      LoginReguest loginRequest = LoginReguest.fromJson(jsonDecode(body));
-      log("${loginRequest.login} ${loginRequest.password}");
-      final laborant = await database.findLaborant(
-        loginRequest.login,
-        loginRequest.password,
-      );
-      final client = await database.findClient(
-        loginRequest.login,
-        loginRequest.password,
-      );
-      if (client == null) {
-        if (laborant == null) {
-          return Response.forbidden('Invalid login or password');
-        }
-        return Response.ok(
-          jsonEncode(
-            LoginResponse(
-              fio: laborant.fio,
-              photoUrl: 'https://example.com/photo.jpg',
-              role: "laborant",
-            ).toJson(),
-          ),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-      return Response.ok(
-        jsonEncode(
-          LoginResponse(
-            fio: client.name,
-            photoUrl: 'https://example.com/photo.jpg',
-            role: "client",
-          ).toJson(),
-        ),
-        headers: {'Content-Type': 'application/json'},
-      );
-    });
-    router.post('/client', (Request request) async {
-        var body = await request.readAsString();
-        final createUserReguest = CreateUserRequest.fromJson(jsonDecode(body));
-        log('${createUserReguest.clientData.email} ${createUserReguest.clientData.nameEnterprise}');
-         database.insertNewClient(
-        createUserReguest.clientData,
-      );
+    final router = Router();
+    router
+      ..post('/login', (Request r) => handlePostLogin(r, database))
+      ..post('/client', (Request r) => handleClientPost(r, database))
+      ..get('/count', (Request r) => handleCountGet(database));
 
-      return Response.ok(jsonEncode(CreateUserResponse().toJson()),
-      headers: {'Content-Type': 'application/json'},
-      );  
-    });
-    router.get('/count', (Request request) async {
-  
-  
-      final otvet = await database.countOrder();
-      log("$otvet");
-      return Response.ok(
-        jsonEncode(CountResponse(count: otvet).toJson()),
-        headers: {'Content-Type': 'application/json'},
-      );
-    });
     router.get('/client/names', (Request request) async {
       final names = await database.findNameClient();
       final response = SeekFioResponse(names: names);
@@ -93,6 +38,7 @@ void main() async {
         headers: {'Content-Type': 'application/json'},
       );
     });
+
     final app = const Pipeline()
         .addMiddleware(logRequests())
         .addHandler(router.call);
@@ -100,6 +46,69 @@ void main() async {
     final _ = await io.serve(app, 'localhost', 8080);
   } catch (e) {
     log(e.toString());
-    
   }
+}
+
+const defaultHeaders = {'Content-Type': 'application/json'};
+
+Future<Response> handleCountGet(AppDatabase database) async {
+  final otvet = await database.countOrder();
+  log("$otvet");
+  return Response.ok(
+    jsonEncode(CountResponse(count: otvet).toJson()),
+    headers: defaultHeaders,
+  );
+}
+
+Future<Response> handleClientPost(Request request, AppDatabase database) async {
+  var body = await request.readAsString();
+  final createUserReguest = CreateUserRequest.fromJson(jsonDecode(body));
+  log(
+    '${createUserReguest.clientData.email} ${createUserReguest.clientData.nameEnterprise}',
+  );
+  database.insertNewClient(createUserReguest.clientData);
+
+  return Response.ok(
+    jsonEncode(CreateUserResponse().toJson()),
+    headers: defaultHeaders,
+  );
+}
+
+Future<Response> handlePostLogin(Request request, AppDatabase database) async {
+  var body = await request.readAsString();
+  LoginReguest loginRequest = LoginReguest.fromJson(jsonDecode(body));
+  log("${loginRequest.login} ${loginRequest.password}");
+  final laborant = await database.findLaborant(
+    loginRequest.login,
+    loginRequest.password,
+  );
+  final client = await database.findClient(
+    loginRequest.login,
+    loginRequest.password,
+  );
+  if (client == null) {
+    if (laborant == null) {
+      return Response.forbidden('Invalid login or password');
+    }
+    return Response.ok(
+      jsonEncode(
+        LoginResponse(
+          fio: laborant.fio,
+          photoUrl: 'https://example.com/photo.jpg',
+          role: "laborant",
+        ).toJson(),
+      ),
+      headers: defaultHeaders,
+    );
+  }
+  return Response.ok(
+    jsonEncode(
+      LoginResponse(
+        fio: client.name,
+        photoUrl: 'https://example.com/photo.jpg',
+        role: "client",
+      ).toJson(),
+    ),
+    headers: defaultHeaders,
+  );
 }
