@@ -8,15 +8,30 @@ import 'package:shared/shared.dart';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yomu/yomu.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
 import 'package:shared/bd.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = SharedPreferencesAsync();
+final login = await prefs.getString('login');
+final role = await prefs.getString('role');
+
+Widget startPage = LoginPage(title: 'Пункт приёма опасных отходов');
+
+  if (login != null && login.isNotEmpty){
+   if (role == 'laborant') {
+      startPage = LabPage(title: 'Рабочая зона лаборанта');
+    } else if (role == 'client') {
+      startPage = ClientPage(title: 'зона клиента');
+    }}
+  runApp(MyApp(startPage: startPage));
+  
+}  
 
 class SaveLogin {
   static String myLogin = '';
@@ -24,17 +39,22 @@ class SaveLogin {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  const MyApp({super.key, required this.startPage});
+  
   @override
+  final Widget startPage;
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Наименование приложения",
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginPage(title: 'Пункт приёма опасных отходов'),
+      home: startPage,
     );
   }
 }
+
+class AccountStorage {
+  final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+}
+
 
 class LabPage extends StatefulWidget {
   const LabPage({super.key, required this.title});
@@ -65,6 +85,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final dio = Dio();
+  final prefs = SharedPreferencesAsync();
+  Future<void> saveAccount(String login, String role) async {
+  await prefs.setString('login', login);
+  await prefs.setString('role', role);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                   final loginResponse = LoginResponse.fromJson(response.data);
+                  await saveAccount(SaveLogin.myLogin, loginResponse.role);
 
                   log(
                     'FIO: ${loginResponse.fio}, Photo URL: ${loginResponse.photoUrl}, Role: ${loginResponse.role}',
@@ -112,16 +138,19 @@ class _LoginPageState extends State<LoginPage> {
                       MaterialPageRoute(
                         builder: (context) {
                           if (loginResponse.role == 'laborant') {
+                           
                             return LabPage(title: 'Рабочая зона лаборанта');
                           } else if (loginResponse.role == 'client') {
-                            // Navigate to the admin page
                             return Scaffold(
                               body: Center(
                                 child: Text('Welcome, ${loginResponse.fio}!'),
                               ),
                             );
                           } else if (loginResponse.role == 'Admin') {
-                            // Navigate to the admin page
+                            Future<void> saveAccount(String login, String role) async {
+                             await prefs.setString('login', login);
+                             await prefs.setString('role', role);
+                            }
                             return Scaffold(
                               body: Center(
                                 child: Text('Welcome, ${loginResponse.fio}!'),
@@ -193,13 +222,21 @@ Future<void> pageAddClient(BuildContext context) async {
   } catch (e){}
 }
 }
+
 class ClientDialog extends StatefulWidget {
   const new({super.key});
 
   @override
   State<ClientDialog> createState() => _ClientDialogState();
 }
+class ChoiceClientDialog extends StatefulWidget {
+  const new({super.key, required this.names});
 
+  final List<String> names;
+
+  @override
+  State<ChoiceClientDialog> createState() => _ChoiceClientDialogState();
+}
 class _ClientDialogState extends State<ClientDialog> {
   var client = OurClient(
     password: '',
@@ -269,7 +306,41 @@ class _ClientDialogState extends State<ClientDialog> {
     );
   }
 }
+Future<String?> clientChoice(BuildContext context) async {
+  try {
+    final response = await Dio().get('http://localhost:8080/client/names');
+    final result = SeekFioResponse.fromJson(response.data);
 
+    if (!context.mounted) return null;
+
+    final selectedName = await showDialog<String>(
+      context: context,
+      builder: (context) => ChoiceClientDialog(names: result.names),
+    );
+
+        if (selectedName != null) {
+      log('Выбран клиент: $selectedName');
+    }
+    return selectedName;
+  } catch (e) {
+    log('Ошибка выбора клиента: $e');
+    return null;
+  }}
+
+class _ChoiceClientDialogState extends State<ChoiceClientDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Выбери клиента'),
+      children: widget.names.map((name) {
+        return TextButton(
+          onPressed: () => Navigator.pop(context, name),
+          child: Text(name),
+        );
+      }).toList(),
+    );
+  }
+}
 class _LabPageState extends State<LabPage> {
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _numbercase = TextEditingController();
@@ -296,7 +367,7 @@ class _LabPageState extends State<LabPage> {
     _numbercase.dispose();
     super.dispose();
   }
-
+String? selectedName;
   Future<void> picking() async {
     final file = await FilePicker.pickFile();
 
@@ -334,6 +405,7 @@ class _LabPageState extends State<LabPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -341,6 +413,18 @@ class _LabPageState extends State<LabPage> {
       body: Center(
         child: Column(
           children: [
+            TextButton(onPressed: () async {
+              final prefs = SharedPreferencesAsync();
+              await prefs.remove('login');
+              await prefs.remove('role');
+              
+              Navigator.push(
+              context,
+               MaterialPageRoute<void>(
+               builder: (context) => const LoginPage(title: "РАБОЧАЯ ЗОНА РЕГИСТАРЦИИ", ))
+            );
+            },
+             child: Text('Выйти')),
             Text('Пункт приёма опасных отходов'),
             Text('Рабочая зона лаборанта'),
             TextButton(
@@ -357,14 +441,25 @@ class _LabPageState extends State<LabPage> {
             Text('клиент'),
             Row(
               children: [
-                ElevatedButton(onPressed: () {},
-                 child: Text('выбор клиента')),
+                ElevatedButton(
+                onPressed: () async {
+                final name = await clientChoice(context);
+                 if (!mounted || name == null) return;
+                 setState(() {
+                 selectedName = name;
+                 });
+                 },
+                child: const Text('выбор клиента'),
+                ),
                 ElevatedButton(onPressed: () {
                   pageAddClient(context);
                 },
                  child: Text('добавление нового клиента')),
               ],
-            )
+            ),
+            Text(selectedName ?? 'Клиент не выбран'),
+            Text('Выберите услуги')
+            //ElevatedButton(onPressed: () {}, child: child)
           ],
         ),
       ),

@@ -50,6 +50,18 @@ class const CreateUserResponse() {
       _$CreateUserResponseFromJson(json);
   Map<String, dynamic> toJson() => _$CreateUserResponseToJson(this);
 }
+@JsonSerializable()
+class const SeekFioRequest() {
+  factory SeekFioRequest.fromJson(Map<String, dynamic> json) =>
+      _$SeekFioRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$SeekFioRequestToJson(this);
+}
+@JsonSerializable()
+class const SeekFioResponse({required final List<String> names}) {
+  factory SeekFioResponse.fromJson(Map<String, dynamic> json) =>
+      _$SeekFioResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$SeekFioResponseToJson(this);
+}
 
 @JsonSerializable()
 class OurClient {

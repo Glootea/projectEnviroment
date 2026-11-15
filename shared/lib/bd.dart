@@ -34,7 +34,7 @@ class Service extends Table {
 
 class Enterprise extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get inn => text().unique().withLength(min: 10, max: 12).nullable()();
+  TextColumn get inn => text().withLength(min: 10, max: 12).nullable().unique()();
   TextColumn get name => text()();
   TextColumn get address => text().nullable()();
   TextColumn get bic => text().withLength(min: 9, max: 9).nullable()();
@@ -103,7 +103,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 17898742;
+  int get schemaVersion => 142;
 
   static QueryExecutor _openConnection() {
     return PgDatabase(
@@ -131,14 +131,17 @@ class AppDatabase extends _$AppDatabase {
   }
 
   void insertData() async {
-    await into(enterprise).insertOnConflictUpdate(
-      EnterpriseCompanion.insert(
-        inn: Value('123456789012'),
-        name: 'fdf',
-        address: Value('dffd'),
-        bic: Value('123456789'),
-      ),
-    );
+    await into(enterprise).insert(
+  EnterpriseCompanion.insert(
+    inn: const Value('123456789012'),
+    name: 'fdf',
+    address: const Value('dffd'),
+    bic: const Value('123456789'),
+  ),
+  onConflict: DoNothing(
+    target: [enterprise.inn],
+  ),
+);
    await  into(client).insertOnConflictUpdate(
       ClientCompanion.insert(
         password: '11111111',
@@ -180,6 +183,11 @@ class AppDatabase extends _$AppDatabase {
     final otvet = await (select(order).get());
     return otvet.length;
   }
+  Future<List<String>> findNameClient() async {
+    final clients = await (select(client)).get();
+    final List<String> names = clients.map((row) => row.name).toList();
+  return(names);
+  }
 
   @override
   MigrationStrategy get migration {
@@ -187,7 +195,7 @@ class AppDatabase extends _$AppDatabase {
       onUpgrade: (m, old, n) async {
         await customStatement('DROP schema public cascade');
         await customStatement('CREATE schema public');
-        await customStatement('GRANT ALL ON SCHEMA public TO postgres');
+        await customStatement('GRANT ALL ON SCHEMA public TO masha');
         await customStatement('GRANT ALL ON SCHEMA public TO public');
         for (final table in allTables) {
           await m.deleteTable(table.actualTableName);

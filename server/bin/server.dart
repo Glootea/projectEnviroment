@@ -75,6 +75,15 @@ void main() async {
         headers: {'Content-Type': 'application/json'},
       );
     });
+    router.get('/client/names', (Request request) async {
+      final names = await database.findNameClient();
+      final response = SeekFioResponse(names: names);
+      log("$names");
+      return Response.ok(
+        jsonEncode(response.toJson()),
+        headers: {'Content-Type': 'application/json'},
+      );
+    });
     final app = const Pipeline()
         .addMiddleware(logRequests())
         .addHandler(router.call);

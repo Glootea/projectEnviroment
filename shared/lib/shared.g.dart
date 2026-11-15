@@ -54,6 +54,20 @@ CreateUserResponse _$CreateUserResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CreateUserResponseToJson(CreateUserResponse instance) =>
     <String, dynamic>{};
 
+SeekFioRequest _$SeekFioRequestFromJson(Map<String, dynamic> json) =>
+    SeekFioRequest();
+
+Map<String, dynamic> _$SeekFioRequestToJson(SeekFioRequest instance) =>
+    <String, dynamic>{};
+
+SeekFioResponse _$SeekFioResponseFromJson(Map<String, dynamic> json) =>
+    SeekFioResponse(
+      names: (json['names'] as List<dynamic>).map((e) => e as String).toList(),
+    );
+
+Map<String, dynamic> _$SeekFioResponseToJson(SeekFioResponse instance) =>
+    <String, dynamic>{'names': instance.names};
+
 OurClient _$OurClientFromJson(Map<String, dynamic> json) => OurClient(
   password: json['password'] as String,
   name: json['name'] as String,
