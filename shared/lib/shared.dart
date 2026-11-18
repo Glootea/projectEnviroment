@@ -85,3 +85,15 @@ class OurClient {
       _$OurClientFromJson(json);
   Map<String, dynamic> toJson() => _$OurClientToJson(this);
 }
+@JsonSerializable()
+class const SeekServiceRequest() {
+  factory SeekServiceRequest.fromJson(Map<String, dynamic> json) =>
+      _$SeekServiceRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$SeekServiceRequestToJson(this);
+}
+@JsonSerializable()
+class const SeekServiceResponse({required final List<String> names}) {
+  factory SeekServiceResponse.fromJson(Map<String, dynamic> json) =>
+      _$SeekServiceResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$SeekServiceResponseToJson(this);
+}

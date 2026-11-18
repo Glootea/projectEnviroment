@@ -103,7 +103,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 142;
+  int get schemaVersion => 14432;
 
   static QueryExecutor _openConnection() {
     return PgDatabase(
@@ -142,6 +142,22 @@ class AppDatabase extends _$AppDatabase {
     target: [enterprise.inn],
   ),
 );
+await  into(service).insertOnConflictUpdate(
+      ServiceCompanion.insert(
+       name: 'уничтожение мусора',
+       code: '1',
+       cost: 200,
+       amDeviation: 1,
+      ),
+    );
+await  into(service).insertOnConflictUpdate(
+      ServiceCompanion.insert(
+       name: 'уничтожение батареек',
+       code: '2',
+       cost: 500,
+       amDeviation: 1,
+      ),
+    );
    await  into(client).insertOnConflictUpdate(
       ClientCompanion.insert(
         password: '11111111',
@@ -188,7 +204,11 @@ class AppDatabase extends _$AppDatabase {
     final List<String> names = clients.map((row) => row.name).toList();
   return(names);
   }
-
+  Future<List<String>> findNameService() async {
+    final services = await (select(service)).get();
+    final List<String> names = services.map((row) => row.name).toList();
+  return(names);
+  }
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(

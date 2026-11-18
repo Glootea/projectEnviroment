@@ -87,3 +87,18 @@ Map<String, dynamic> _$OurClientToJson(OurClient instance) => <String, dynamic>{
   'phone': instance.phone,
   'nameEnterprise': instance.nameEnterprise,
 };
+
+SeekServiceRequest _$SeekServiceRequestFromJson(Map<String, dynamic> json) =>
+    SeekServiceRequest();
+
+Map<String, dynamic> _$SeekServiceRequestToJson(SeekServiceRequest instance) =>
+    <String, dynamic>{};
+
+SeekServiceResponse _$SeekServiceResponseFromJson(Map<String, dynamic> json) =>
+    SeekServiceResponse(
+      names: (json['names'] as List<dynamic>).map((e) => e as String).toList(),
+    );
+
+Map<String, dynamic> _$SeekServiceResponseToJson(
+  SeekServiceResponse instance,
+) => <String, dynamic>{'names': instance.names};

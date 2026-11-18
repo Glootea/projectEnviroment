@@ -237,6 +237,14 @@ class ChoiceClientDialog extends StatefulWidget {
   @override
   State<ChoiceClientDialog> createState() => _ChoiceClientDialogState();
 }
+class ChoiceServiceDialog extends StatefulWidget {
+ const new({super.key, required this.names, required this.selected});
+
+final List<String> names;
+final List<String> selected;
+  @override
+  State<ChoiceServiceDialog> createState() => _ChoiceServiceDialogState();
+}
 class _ClientDialogState extends State<ClientDialog> {
   var client = OurClient(
     password: '',
@@ -326,8 +334,29 @@ Future<String?> clientChoice(BuildContext context) async {
     log('Ошибка выбора клиента: $e');
     return null;
   }}
+Future<List<String>?> serviceChoice(
+  BuildContext context,
+  List<String> selectedServices,
+) async {
+  try {
+    final response = await Dio().get('http://localhost:8080/service/names');
+    final result = SeekServiceResponse.fromJson(response.data);
 
-class _ChoiceClientDialogState extends State<ChoiceClientDialog> {
+    if (!context.mounted) return null;
+
+    return await showDialog<List<String>>(
+      context: context,
+      builder: (context) => ChoiceServiceDialog(
+        names: result.names,
+        selected: selectedServices,
+      ),
+    );
+  } catch (e) {
+    log('Ошибка выбора услуг: $e');
+    return null;
+  }
+}
+  class _ChoiceClientDialogState extends State<ChoiceClientDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
@@ -338,6 +367,48 @@ class _ChoiceClientDialogState extends State<ChoiceClientDialog> {
           child: Text(name),
         );
       }).toList(),
+    );
+  }
+}
+class _ChoiceServiceDialogState extends State<ChoiceServiceDialog> {
+  late final Set<String> _checked = widget.selected.toSet();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Выбери услуги'),
+      scrollable: true,
+      content: SizedBox(
+        width: 320,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: widget.names.map((name) {
+            return CheckboxListTile(
+              title: Text(name),
+              value: _checked.contains(name),
+              onChanged: (checked) {
+                setState(() {
+                  if (checked == true) {
+                    _checked.add(name);
+                  } else {
+                    _checked.remove(name);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Отмена'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, _checked.toList()),
+          child: const Text('Готово'),
+        ),
+      ],
     );
   }
 }
@@ -368,6 +439,7 @@ class _LabPageState extends State<LabPage> {
     super.dispose();
   }
 String? selectedName;
+List<String> selectedServices = [];
   Future<void> picking() async {
     final file = await FilePicker.pickFile();
 
@@ -438,7 +510,7 @@ String? selectedName;
               decoration: InputDecoration(labelText: 'Введите код кейса'),
             ),
             TextField(controller: _numbercase),
-            Text('клиент'),
+            Text('КЛИЕНТ'),
             Row(
               children: [
                 ElevatedButton(
@@ -458,7 +530,23 @@ String? selectedName;
               ],
             ),
             Text(selectedName ?? 'Клиент не выбран'),
-            Text('Выберите услуги')
+            Text('УСЛУГИ'),
+            ElevatedButton(
+  onPressed: () async {
+    final services = await serviceChoice(context, selectedServices);
+    if (!mounted || services == null) return;
+
+    setState(() {
+      selectedServices = services;
+    });
+  },
+  child: const Text('Выбор услуг'),
+),
+Text(
+  selectedServices.isEmpty
+      ? 'Услуги не выбраны'
+      : selectedServices.join(', '),
+),          
             //ElevatedButton(onPressed: () {}, child: child)
           ],
         ),
