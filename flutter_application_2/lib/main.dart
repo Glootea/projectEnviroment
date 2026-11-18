@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared/shared.dart';
-
+import 'package:similarity/similarity.dart';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -64,6 +64,15 @@ class LabPage extends StatefulWidget {
   @override
   State<LabPage> createState() => _LabPageState(); // 1 ЗАЧЕМ ЭТО НУЖНО 2 Зачем перед переменной _
 }
+
+class BookerPage extends StatefulWidget {
+  const BookerPage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<BookerPage> createState() => _BookerPageState();
+ }
 
 class ClientPage extends StatefulWidget {
   const ClientPage({super.key, required this.title});
@@ -553,4 +562,10 @@ Text(
       ),
     );
   }
+}
+class _BookerPageState extends State<BookerPage> {
+@override
+  Widget build(BuildContext context) {
+    return Scaffold();
+}
 }

@@ -50,12 +50,14 @@ class const CreateUserResponse() {
       _$CreateUserResponseFromJson(json);
   Map<String, dynamic> toJson() => _$CreateUserResponseToJson(this);
 }
+
 @JsonSerializable()
 class const SeekFioRequest() {
   factory SeekFioRequest.fromJson(Map<String, dynamic> json) =>
       _$SeekFioRequestFromJson(json);
   Map<String, dynamic> toJson() => _$SeekFioRequestToJson(this);
 }
+
 @JsonSerializable()
 class const SeekFioResponse({required final List<String> names}) {
   factory SeekFioResponse.fromJson(Map<String, dynamic> json) =>
@@ -85,12 +87,14 @@ class OurClient {
       _$OurClientFromJson(json);
   Map<String, dynamic> toJson() => _$OurClientToJson(this);
 }
+
 @JsonSerializable()
 class const SeekServiceRequest() {
   factory SeekServiceRequest.fromJson(Map<String, dynamic> json) =>
       _$SeekServiceRequestFromJson(json);
   Map<String, dynamic> toJson() => _$SeekServiceRequestToJson(this);
 }
+
 @JsonSerializable()
 class const SeekServiceResponse({required final List<String> names}) {
   factory SeekServiceResponse.fromJson(Map<String, dynamic> json) =>

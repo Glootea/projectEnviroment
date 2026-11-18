@@ -34,13 +34,14 @@ class Service extends Table {
 
 class Enterprise extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get inn => text().withLength(min: 10, max: 12).nullable().unique()();
+  TextColumn get inn =>
+      text().withLength(min: 10, max: 12).nullable().unique()();
   TextColumn get name => text()();
   TextColumn get address => text().nullable()();
   TextColumn get bic => text().withLength(min: 9, max: 9).nullable()();
   @override
   Set<Column<Object>> get primaryKey => {id};
-   List<Set<Column<Object>>> get uniqueKeys => [
+  List<Set<Column<Object>>> get uniqueKeys => [
     {inn},
   ];
 }
@@ -52,8 +53,11 @@ class Client extends Table {
   TextColumn get birthday => text()();
   TextColumn get email => text()();
   TextColumn get phone => text()();
-  TextColumn get innEnterprise =>
-      text().nullable().references(Enterprise, #inn, onDelete: KeyAction.cascade)();
+  TextColumn get innEnterprise => text().nullable().references(
+    Enterprise,
+    #inn,
+    onDelete: KeyAction.cascade,
+  )();
   @override
   Set<Column<Object>> get primaryKey => {login};
 }
@@ -132,33 +136,31 @@ class AppDatabase extends _$AppDatabase {
 
   void insertData() async {
     await into(enterprise).insert(
-  EnterpriseCompanion.insert(
-    inn: const Value('123456789012'),
-    name: 'fdf',
-    address: const Value('dffd'),
-    bic: const Value('123456789'),
-  ),
-  onConflict: DoNothing(
-    target: [enterprise.inn],
-  ),
-);
-await  into(service).insertOnConflictUpdate(
+      EnterpriseCompanion.insert(
+        inn: const Value('123456789012'),
+        name: 'fdf',
+        address: const Value('dffd'),
+        bic: const Value('123456789'),
+      ),
+      onConflict: DoNothing(target: [enterprise.inn]),
+    );
+    await into(service).insertOnConflictUpdate(
       ServiceCompanion.insert(
-       name: 'уничтожение мусора',
-       code: '1',
-       cost: 200,
-       amDeviation: 1,
+        name: 'уничтожение мусора',
+        code: '1',
+        cost: 200,
+        amDeviation: 1,
       ),
     );
-await  into(service).insertOnConflictUpdate(
+    await into(service).insertOnConflictUpdate(
       ServiceCompanion.insert(
-       name: 'уничтожение батареек',
-       code: '2',
-       cost: 500,
-       amDeviation: 1,
+        name: 'уничтожение батареек',
+        code: '2',
+        cost: 500,
+        amDeviation: 1,
       ),
     );
-   await  into(client).insertOnConflictUpdate(
+    await into(client).insertOnConflictUpdate(
       ClientCompanion.insert(
         password: '11111111',
         name: 'John',
@@ -181,11 +183,21 @@ await  into(service).insertOnConflictUpdate(
       ),
     );
   }
+
   void insertNewClient(OurClient c) async {
     into(client).insertOnConflictUpdate(
-      ClientCompanion.insert( password:'000000000', name: c.name, login: c.login, birthday: c.birthday, email: c.email, phone: c.phone));
+      ClientCompanion.insert(
+        password: '000000000',
+        name: c.name,
+        login: c.login,
+        birthday: c.birthday,
+        email: c.email,
+        phone: c.phone,
+      ),
+    );
     into(enterprise).insertOnConflictUpdate(
-      EnterpriseCompanion.insert( name: c.nameEnterprise));
+      EnterpriseCompanion.insert(name: c.nameEnterprise),
+    );
   }
 
   Future<ClientData?> findClient(String login, String password) {
@@ -199,16 +211,19 @@ await  into(service).insertOnConflictUpdate(
     final otvet = await (select(order).get());
     return otvet.length;
   }
+
   Future<List<String>> findNameClient() async {
     final clients = await (select(client)).get();
     final List<String> names = clients.map((row) => row.name).toList();
-  return(names);
+    return (names);
   }
+
   Future<List<String>> findNameService() async {
     final services = await (select(service)).get();
     final List<String> names = services.map((row) => row.name).toList();
-  return(names);
+    return (names);
   }
+
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
@@ -220,7 +235,6 @@ await  into(service).insertOnConflictUpdate(
         for (final table in allTables) {
           await m.deleteTable(table.actualTableName);
           await m.createTable(table);
-            
         }
 
         log('Migration ended');

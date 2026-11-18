@@ -461,6 +461,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.6.4"
+  offset_list:
+    dependency: transitive
+    description:
+      name: offset_list
+      sha256: "0fd19bec84a7947b4ff8c1c5329394441b7c9603062428623e16422e87398778"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   package_config:
     dependency: transitive
     description:
@@ -644,6 +652,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
+  similarity:
+    dependency: "direct main"
+    description:
+      name: similarity
+      sha256: "901872561abdfeefe943089023d1d54f601a50ace3d8ff98f840a751c05a8ffd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   sky_engine:
     dependency: transitive
     description: flutter
